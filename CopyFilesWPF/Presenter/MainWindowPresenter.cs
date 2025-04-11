@@ -29,7 +29,7 @@ namespace CopyFilesWPF.Presenter
             _mainWindowModel.FilePath.PathTo = path;
         }
 
-        // порефакторить этот метод, убрать хардкод, разделить на более мелкие методы
+        // Цей код вже порефакторений
         public void CopyButtonClick()
         {
             SetMainModelSettings();
@@ -54,28 +54,20 @@ namespace CopyFilesWPF.Presenter
 
         
 
-        // порефакторить этот метод, убрать хардкод, и переделать его по SOLID (тут несколько ответсвенностей)
+        // Порефакторений код
         private void PauseClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            var pauseB = (Button)sender;
-            pauseB.IsEnabled = false;
-
-            if (pauseB!.Content.ToString()!.Equals("Pause"))
+            if(sender is Button pauseB)
             {
-                ((pauseB.Tag as Grid)!.Tag as FileCopier)!.PauseFlag.Reset();
-            }
-            else
-            {
-                ((pauseB.Tag as Grid)!.Tag as FileCopier)!.PauseFlag.Set();
+                ButtonActionHandler.HandlePause(pauseB);
             }
         }
 
         private void CancelClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            var cancelB = (Button)sender;
-            if (cancelB!.Content.ToString()!.Equals("Cancel"))
+            if (sender is Button cancelB)
             {
-                ((cancelB.Tag as Grid)!.Tag as FileCopier)!.cancelTokenSource.Cancel();
+                ButtonActionHandler.HandleCancel(cancelB);
             }
         }
 
@@ -91,31 +83,14 @@ namespace CopyFilesWPF.Presenter
             );
         }
 
-        // порефакторить этот метод, убрать хардкод, и переделать его по SOLID (тут несколько ответсвенностей)
+        // Порефакторений код
         private void ProgressChanged(double persentage, Grid panel)
         {
             _mainWindowView.MainWindowView.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
                 (ThreadStart)delegate ()
                 {
-                    foreach (var el in panel.Children)
-                    {
-                        if (el is ProgressBar bar)
-                        {
-                            bar.Value = persentage;
-                        }
-                        if (el is Button button1 && button1!.Content.ToString()!.Equals("Resume") && button1!.IsEnabled == false)
-                        {
-                            button1.Content = "Pause";
-                            button1.IsEnabled = true;
-                        }
-                        else if (el is Button button && button!.Content.ToString()!.Equals("Pause") && button.IsEnabled == false)
-                        {
-                            button.Content = "Resume";
-                            button.IsEnabled = true;
-                        }
-                    }
-                }
-            );
+                    ButtonActionHandler.UpdateProgressBar(persentage, panel);
+                });
         }
     }
 }
